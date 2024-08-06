@@ -1,7 +1,3 @@
-Got it! Here is the revised README file:
-
----
-
 # Employee Company Database Management System
 
 ## Introduction
