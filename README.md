@@ -24,65 +24,128 @@ Here's the SQL code for creating the database schema:
 
 ```sql
 -- Creating Manager table
-CREATE TABLE Manager (
-    ManagerID INT PRIMARY KEY,
-    ManagerName VARCHAR(100)
-);
+REATE SCHEMA IF NOT EXISTS `EmployeeCompany` DEFAULT CHARACTER SET utf8;
+USE `EmployeeCompany`;
 
--- Creating Employee table
-CREATE TABLE Employee (
-    EmployeeID INT PRIMARY KEY,
-    EmployeeName VARCHAR(100),
-    Gender CHAR(1),
-    DateOfBirth DATE,
-    PhoneNumber VARCHAR(15),
-    Email VARCHAR(100),
-    Age INT,
-    Manager_ID INT,
-    FOREIGN KEY (Manager_ID) REFERENCES Manager(ManagerID)
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Maneger` (
+    `ManagerID` INT(5) NOT NULL,
+    `ManegeName` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`ManagerID`)
+) ENGINE = InnoDB;
 
--- Creating Department table
-CREATE TABLE Department (
-    DepartmentID INT PRIMARY KEY,
-    DepartmentName VARCHAR(100)
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Employee` (
+    `EM_ID` INT(5) NOT NULL,
+    `FirstName` VARCHAR(45) NOT NULL,
+    `LastName` VARCHAR(45) NOT NULL,
+    `Gender` VARCHAR(45) NOT NULL,
+    `DateOfBirth` DATE NOT NULL,
+    `Phone` INT(10) NULL,
+    `Email` VARCHAR(45) NULL,
+    `Age` INT(2) NOT NULL,
+    `Maneger_ID` INT(5) NULL,
+    PRIMARY KEY (`EM_ID`),
+    CONSTRAINT `fk_Employee_Maneger1`
+    FOREIGN KEY (`Maneger_ID`)
+    REFERENCES `EmployeeCompany`.`Maneger` (`ManagerID`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE = InnoDB;
 
--- Creating JobRole table
-CREATE TABLE JobRole (
-    JobRoleID INT PRIMARY KEY,
-    JobRoleName VARCHAR(100)
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Department` (
+    `DepartmentID` VARCHAR(5) NOT NULL,
+    `DepartmentName` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`DepartmentID`)
+) ENGINE = InnoDB;
 
--- Creating JobRole_Department table
-CREATE TABLE JobRole_Department (
-    JobRoleID INT,
-    DepartmentID INT,
-    EmployeeID INT,
-    StartDate DATE,
-    EndDate DATE,
-    PRIMARY KEY (JobRoleID, DepartmentID, EmployeeID),
-    FOREIGN KEY (JobRoleID) REFERENCES JobRole(JobRoleID),
-    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`JobRole` (
+    `JobName` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`JobName`)
+) ENGINE = InnoDB;
 
--- Creating Attendance table
-CREATE TABLE Attendance (
-    AttendanceID INT PRIMARY KEY,
-    EmployeeID INT,
-    Date DATE,
-    Time TIME,
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`JobRole_Department` (
+    `JobRoleDepartmentID` INT(5) NOT NULL,
+    `JobRole_JobName` VARCHAR(45) NOT NULL,
+    `Department_ID` VARCHAR(5) NOT NULL,
+    `Employee_idEmployee` INT(5) NOT NULL,
+    `StartDate` DATE NOT NULL,
+    `EndDate` DATE NOT NULL,
+    PRIMARY KEY (`JobRoleDepartmentID`, `JobRole_JobName`, `Department_ID`, `Employee_idEmployee`),
+    CONSTRAINT `fk_EmployeeDepartment_JobRole1`
+    FOREIGN KEY (`JobRole_JobName`)
+    REFERENCES `EmployeeCompany`.`JobRole` (`JobName`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    CONSTRAINT `fk_EmployeeDepartment_Department1`
+    FOREIGN KEY (`Department_ID`)
+    REFERENCES `EmployeeCompany`.`Department` (`DepartmentID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    CONSTRAINT `fk_EmployeeDepartment_Employee1`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `EmployeeCompany`.`Employee` (`EM_ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE = InnoDB;
 
--- Creating Project table
-CREATE TABLE Project (
-    ProjectID INT PRIMARY KEY,
-    ProjectName VARCHAR(100),
-    StartDate DATE,
-    EndDate DATE
-);
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Attandance` (
+    `AID` INT(5) NOT NULL,
+    `Date` DATE NOT NULL,
+    `ClockInTime` VARCHAR(45) NOT NULL,
+    `ClockOutTime` VARCHAR(45) NOT NULL,
+    `Employee_idEmployee` INT(10) NOT NULL,
+    PRIMARY KEY (`AID`, `Employee_idEmployee`),
+    CONSTRAINT `fk_Attandance_Employee1`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `EmployeeCompany`.`Employee` (`EM_ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Project` (
+    `ProjectName` VARCHAR(45) NOT NULL,
+    `ProjectStartDate` DATE NOT NULL,
+    `ProjectEndDate` DATE NULL,
+    PRIMARY KEY (`ProjectName`)
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`ProjectTeam` (
+    `TeamID` INT(5) NOT NULL,
+    `Employee_idEmployee` INT(5) NOT NULL,
+    `Project_ProjectName` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`TeamID`, `Employee_idEmployee`, `Project_ProjectName`),
+    CONSTRAINT `fk_ProjectTeam_Employee1`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `EmployeeCompany`.`Employee` (`EM_ID`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_ProjectTeam_Project1`
+    FOREIGN KEY (`Project_ProjectName`)
+    REFERENCES `EmployeeCompany`.`Project` (`ProjectName`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Salaried_Employee` (
+    `Salary` INT(5) NOT NULL,
+    `Employee_idEmployee` INT(5) NOT NULL,
+    PRIMARY KEY (`Employee_idEmployee`),
+    CONSTRAINT `fk_Salaried_Employee_Employee`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `EmployeeCompany`.`Employee` (`EM_ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `EmployeeCompany`.`Hourly_Employee` (
+    `Hourly_Pay` INT(5) NOT NULL,
+    `Employee_idEmployee` INT(5) NOT NULL,
+    PRIMARY KEY (`Employee_idEmployee`),
+    CONSTRAINT `fk_Hourly_Employee_Employee`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `EmployeeCompany`.`Employee` (`EM_ID`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE = InnoDB;
 ```
 
 ## Usage
@@ -97,17 +160,13 @@ INSERT INTO Manager (ManagerID, ManagerName) VALUES (1, 'John Doe');
 
 -- Inserting data into Employee table
 INSERT INTO Employee (EmployeeID, EmployeeName, Gender, DateOfBirth, PhoneNumber, Email, Age, Manager_ID)
-VALUES (1, 'Jane Smith', 'F', '1990-01-01', '1234567890', 'jane.smith@example.com', 30, 1);
+VALUES (2, 'Jane', 'Smith', 'Female', '1995-05-20', 0505271638, 'jane.smith@example.com', 28, 1),
 
 -- Inserting data into Department table
-INSERT INTO Department (DepartmentID, DepartmentName) VALUES (1, 'Human Resources');
+INSERT INTO Department (DepartmentID, DepartmentName) VALUES (HR, 'Human Resources');
 
 -- Inserting data into JobRole table
-INSERT INTO JobRole (JobRoleID, JobRoleName) VALUES (1, 'Software Engineer');
-
--- Inserting data into JobRole_Department table
-INSERT INTO JobRole_Department (JobRoleID, DepartmentID, EmployeeID, StartDate, EndDate)
-VALUES (1, 1, 1, '2022-01-01', NULL);
+INSERT INTO JobRole (JobName) VALUES ('HR Coordinator'),
 
 -- Inserting data into Attendance table
 INSERT INTO Attendance (AttendanceID, EmployeeID, Date, Time)
@@ -115,7 +174,7 @@ VALUES (1, 1, '2023-01-01', '09:00:00');
 
 -- Inserting data into Project table
 INSERT INTO Project (ProjectID, ProjectName, StartDate, EndDate)
-VALUES (1, 'Project Alpha', '2022-01-01', '2022-12-31');
+VALUES  (1, '2023-01-15', '09:00:00', '17:00:00', 1),
 ```
 
 ### Basic Queries
@@ -129,20 +188,9 @@ SELECT * FROM Employee;
 -- Get all employees managed by a specific manager
 SELECT * FROM Employee WHERE Manager_ID = 1;
 
--- Get all departments
-SELECT * FROM Department;
-
--- Get all job roles in a specific department
-SELECT JobRole.JobRoleName
-FROM JobRole
-JOIN JobRole_Department ON JobRole.JobRoleID = JobRole_Department.JobRoleID
-WHERE JobRole_Department.DepartmentID = 1;
 ```
 
 ## Conclusion
 
 This project provides a solid foundation for managing an organization's employee data, allowing you to perform essential operations such as adding, updating, and querying information. It serves as a practical introduction to real-world database management system projects.
 
----
-
-Feel free to modify this README file according to your needs!
